@@ -1,0 +1,32 @@
+<svg width="500" height="120" viewBox="0 0 500 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="purpleGrad" x1="0" y1="0" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#9333ea" />
+      <stop offset="100%" stop-color="#7e22ce" />
+    </linearGradient>
+    
+    <filter id="softShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
+      <feOffset dx="2" dy="2" result="offsetblur"/>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.15"/>
+      </feComponentTransfer>
+      <feMerge> 
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/> 
+      </feMerge>
+    </filter>
+  </defs>
+
+  <g filter="url(#softShadow)">
+    <rect x="10" y="15" width="90" height="90" rx="24" fill="url(#purpleGrad)" />
+    <path d="M35 75L50 50L65 65L80 35" stroke="white" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" />
+    <circle cx="80" cy="35" r="5" fill="white" />
+  </g>
+
+  <text x="125" y="82" font-family="Inter, system-ui, -apple-system, sans-serif" font-weight="900" font-size="72" fill="url(#purpleGrad)" style="letter-spacing: -4px;">
+    trackerz
+  </text>
+  
+  <circle cx="435" cy="72" r="8" fill="#9333ea" />
+</svg>
