@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import {
-  LineChart,
-  Line,
+  AreaChart,
+  Area,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -13,6 +13,24 @@ import {
 import { getPriceHistory } from "@/app/actions";
 import { Loader2 } from "lucide-react";
 
+const CustomTooltip = ({ active, payload, label }) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-black border border-white/15 rounded-lg px-3 py-2 shadow-xl">
+        <p className="text-[11px] text-white/40 mb-0.5">{label}</p>
+        <p className="text-sm font-semibold text-white">
+          {payload[0].value.toLocaleString("en-US", {
+            style: "currency",
+            currency: "USD",
+            minimumFractionDigits: 2,
+          })}
+        </p>
+      </div>
+    );
+  }
+  return null;
+};
+
 export default function PriceChart({ productId }) {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -20,32 +38,28 @@ export default function PriceChart({ productId }) {
   useEffect(() => {
     async function loadData() {
       const history = await getPriceHistory(productId);
-
       const chartData = history.map((item) => ({
-        date: new Date(item.checked_at).toLocaleDateString(),
+        date: new Date(item.checked_at).toLocaleDateString("en-US", { month: "short", day: "numeric" }),
         price: parseFloat(item.price),
       }));
-
       setData(chartData);
       setLoading(false);
     }
-
     loadData();
   }, [productId]);
 
   if (loading) {
     return (
-      // Changed text color to purple-500
-      <div className="flex items-center justify-center py-8 text-purple-500 w-full">
-        <Loader2 className="w-5 h-5 animate-spin mr-2" />
-        Loading chart...
+      <div className="flex items-center justify-center py-8 text-white/30 w-full">
+        <Loader2 className="w-4 h-4 animate-spin mr-2" />
+        <span className="text-xs">Loading chart...</span>
       </div>
     );
   }
 
   if (data.length === 0) {
     return (
-      <div className="text-center py-8 text-gray-500 w-full">
+      <div className="text-center py-8 text-white/20 text-xs w-full">
         No price history yet. Check back after the first daily update!
       </div>
     );
@@ -53,34 +67,41 @@ export default function PriceChart({ productId }) {
 
   return (
     <div className="w-full">
-      {/* Updated heading to text-purple-900 */}
-      <h4 className="text-sm font-semibold mb-4 text-purple-900">
+      <p className="text-[11px] font-medium text-white/30 uppercase tracking-widest mb-4">
         Price History
-      </h4>
-      <ResponsiveContainer width="100%" height={200}>
-        <LineChart data={data}>
-          {/* Light purple grid lines */}
-          <CartesianGrid strokeDasharray="3 3" stroke="#f3e8ff" />
-          {/* Purple tinted axis labels */}
-          <XAxis dataKey="date" tick={{ fontSize: 12, fill: '#7e22ce' }} stroke="#d8b4fe" />
-          <YAxis tick={{ fontSize: 12, fill: '#7e22ce' }} stroke="#d8b4fe" />
-          <Tooltip
-            contentStyle={{
-              backgroundColor: "white",
-              border: "1px solid #c084fc", // Purple-400 border
-              borderRadius: "6px",
-            }}
+      </p>
+      <ResponsiveContainer width="100%" height={180}>
+        <AreaChart data={data} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
+          <defs>
+            <linearGradient id="priceGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor="#ffffff" stopOpacity={0.1} />
+              <stop offset="95%" stopColor="#ffffff" stopOpacity={0} />
+            </linearGradient>
+          </defs>
+          <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+          <XAxis
+            dataKey="date"
+            tick={{ fontSize: 10, fill: "rgba(255,255,255,0.25)", fontFamily: "monospace" }}
+            axisLine={false}
+            tickLine={false}
           />
-          <Line
+          <YAxis
+            tick={{ fontSize: 10, fill: "rgba(255,255,255,0.25)", fontFamily: "monospace" }}
+            axisLine={false}
+            tickLine={false}
+          />
+          <Tooltip content={<CustomTooltip />} cursor={{ stroke: "rgba(255,255,255,0.1)", strokeWidth: 1 }} />
+          <Area
             type="monotone"
             dataKey="price"
-            stroke="#9333ea" // Primary Purple (Purple-600)
-            strokeWidth={2}
-            dot={{ fill: "#9333ea", r: 4 }}
-            activeDot={{ r: 6 }}
+            stroke="#ffffff"
+            strokeWidth={1.5}
+            fill="url(#priceGrad)"
+            dot={false}
+            activeDot={{ r: 4, fill: "#ffffff", strokeWidth: 0 }}
           />
-        </LineChart>
+        </AreaChart>
       </ResponsiveContainer>
     </div>
   );
-}
+}

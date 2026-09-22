@@ -15,11 +15,11 @@ export default function AuthModal({ isOpen, onClose }) {
   
     const handleGoogleLogin = async () => {
         try {
-        const { origin } = window.location;
+        const origin = window.location.origin; // e.g. "http://localhost:3000"
         const { data, error } = await supabase.auth.signInWithOAuth({
             provider: "google",
             options: {
-                // Ensure this matches the URL in your Supabase Dashboard exactly
+                // Must match exactly what's in your Supabase Dashboard → Auth → URL Configuration
                 redirectTo: `${origin}/auth/callback`,
             },
         });
